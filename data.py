@@ -10,7 +10,7 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
-
+from torch.utils.data.sampler import Sampler
 from config import PROBLEM_TEST, PROBLEM_TRAIN
 
 warnings.filterwarnings("ignore", ".*does not have many workers.*")
@@ -18,6 +18,7 @@ warnings.filterwarnings("ignore", ".*does not have many workers.*")
 
 class TextDataset(Dataset):
     def __init__(self, csv_file: Path, embeddings_model: Path) -> None:
+        super().__init__()
         df = pd.read_csv(csv_file)
 
         with open(os.devnull, "w") as null:
@@ -36,13 +37,20 @@ class TextDataset(Dataset):
         return self.embeddings[idx], self.labels[idx]
 
 
-# do modeli innych niż fasttext można nadpisać __init__
-class CustomDataset(TextDataset):
-    def __init__(self, csv_file: Path) -> None:
+class TransformerEmbeddingsDataset(Dataset):
+    def __init__(self, csv_file: Path, text_to_embeddings: t.Callable) -> None:
+        super().__init__()
         df = pd.read_csv(csv_file)
-
-        self.embeddings = ...
+        self.text_pd = df["text"]
         self.labels = torch.tensor(df["label"].values)
+        self.text_to_embeddings = text_to_embeddings
+
+    def __len__(self) -> int:
+        return len(self.labels)
+
+    def __getitem__(self, idx: int) -> t.Tuple[torch.Tensor, torch.Tensor]:
+        embedding = self.text_to_embeddings(self.text_pd[idx]).squeeze().cpu()
+        return embedding, self.labels[idx]
 
 
 class HatefulTweets(pl.LightningDataModule):

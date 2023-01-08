@@ -8,3 +8,6 @@ pytorch-lightning
 scikit-learn
 torch
 torchmetrics
+transformers
+sacremoses
+notebook
