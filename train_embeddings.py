@@ -1,22 +1,25 @@
-import fasttext
+import typing as t
 from pathlib import Path
+
+import fasttext
+
 from config import (
+    CBOW_CORPUS,
+    CBOW_FULL,
     CORPUS_SENTENCES,
     FULL_SENTENCES,
     SG_CORPUS,
     SG_FULL,
-    CBOW_CORPUS,
-    CBOW_FULL,
 )
-import typing as t
 
 
 def train_model(
     source: Path,
     output: Path,
     method: t.Literal["skipgram", "cbow"],
+    dim: int = 300,
 ):
-    model = fasttext.train_unsupervised(str(source), model=method, thread=20)
+    model = fasttext.train_unsupervised(str(source), model=method, dim=dim, thread=20)
     model.save_model(str(output))
 
 

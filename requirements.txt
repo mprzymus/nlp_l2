@@ -1,3 +1,10 @@
+datasets
 emoji
 fasttext
 nltk
+pandas
+pyarrow
+pytorch-lightning
+scikit-learn
+torch
+torchmetrics

@@ -1,17 +1,13 @@
-from pathlib import Path
 import string
-import emoji
-from tqdm import tqdm
-import nltk
-from nltk.tokenize import sent_tokenize, word_tokenize, casual_tokenize
-from config import CORPUS, FULL, CORPUS_SENTENCES, FULL_SENTENCES
+from pathlib import Path
 
-nltk.download("punkt", quiet=True)
+from tqdm import tqdm
+
+from config import CORPUS, CORPUS_SENTENCES, FULL, FULL_SENTENCES
+from text_processing import clean_to_sentences
 
 
 def process_file(f: Path, output: Path) -> None:
-    translation_table = str.maketrans("", "", string.punctuation + "—ᴗ❛… ️³￣’”„𓆉•♡›«»–")
-
     with (
         f.open(mode="r", encoding="utf-8") as in_,
         output.open(mode="w", encoding="utf-8") as out,
@@ -23,24 +19,9 @@ def process_file(f: Path, output: Path) -> None:
             if line == "\n":
                 continue
 
-            line = line.replace("@user", "").lower()
-
-            sentences = sent_tokenize(line, language="polish")
-            for sentence in sentences:
-                words = [
-                    word.translate(translation_table)
-                    for word in casual_tokenize(sentence)
-                    if not word.startswith("#")
-                ]
-
-                text = " ".join(
-                    word for word in words if word not in emoji.UNICODE_EMOJI
-                )
-                text = text.replace("  ", " ").strip()
-
-                if text:
-                    out.write(text)
-                    out.write("\n")
+            for sent in clean_to_sentences(line):
+                out.write(sent)
+                out.write("\n")
 
 
 def main():
