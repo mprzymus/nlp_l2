@@ -10,7 +10,7 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader, Dataset
-from torch.utils.data.sampler import Sampler
+from tqdm import tqdm
 from config import PROBLEM_TEST, PROBLEM_TRAIN
 
 warnings.filterwarnings("ignore", ".*does not have many workers.*")
@@ -41,16 +41,18 @@ class TransformerEmbeddingsDataset(Dataset):
     def __init__(self, csv_file: Path, text_to_embeddings: t.Callable) -> None:
         super().__init__()
         df = pd.read_csv(csv_file)
-        self.text_pd = df["text"]
+        ls = []
+        # for text in tqdm(df['text']):
+        for text in df['text']:
+            ls.append(text_to_embeddings(text).cpu())
+        self.embeddings = torch.cat(ls)
         self.labels = torch.tensor(df["label"].values)
-        self.text_to_embeddings = text_to_embeddings
 
     def __len__(self) -> int:
         return len(self.labels)
 
     def __getitem__(self, idx: int) -> t.Tuple[torch.Tensor, torch.Tensor]:
-        embedding = self.text_to_embeddings(self.text_pd[idx]).squeeze().cpu()
-        return embedding, self.labels[idx]
+        return self.embeddings[idx].detach(), self.labels[idx]
 
 
 class HatefulTweets(pl.LightningDataModule):
