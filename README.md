@@ -20,3 +20,7 @@ is not tested though).
 Create another dataset in `data.py` that will extract the embeddings, the template is
 already there (we extract them once to speed up the training process, as the dataset
 fits into memory).
+
+
+### ewbst & hwbst
+Extract arch from https://clarin-pl.eu/dspace/handle/11321/446 as wntests. Run hwbst.sh and ewbst.sh. Output is written in adequate out.txt file. If you want to generate only for n query set, add n as argument.
