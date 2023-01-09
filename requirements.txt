@@ -11,3 +11,4 @@ torchmetrics
 transformers
 sacremoses
 notebook
+tqdm
